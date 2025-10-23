@@ -175,6 +175,14 @@
             animation: spin 1s linear infinite;
         }
         
+        .credit {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #a8d8ff;
+            opacity: 0.8;
+        }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -213,7 +221,7 @@
             <h2 class="tool-title">Sim Info Tool</h2>
             
             <div class="input-group">
-                <input type="text" id="phoneNumber" placeholder="Enter phone number (e.g., 03001234567)" maxlength="11">
+                <input type="text" id="phoneNumber" placeholder="Enter phone number (e.g., 03035171619)" maxlength="11">
                 <button id="searchBtn">Search</button>
             </div>
             
@@ -264,8 +272,12 @@
                     </div>
                 `;
                 
-                // Make API call to your endpoint
-                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=`;
+                // Method 1: Try direct fetch first
+                tryDirectFetch(phoneNumber);
+            }
+            
+            function tryDirectFetch(phoneNumber) {
+                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}`;
                 
                 fetch(apiUrl)
                     .then(response => {
@@ -275,26 +287,82 @@
                         return response.json();
                     })
                     .then(data => {
-                        // Check if data is available
-                        if (data && Object.keys(data).length > 0) {
-                            displayResults(data);
-                        } else {
-                            showNoData();
-                        }
+                        console.log('API Response:', data);
+                        handleApiResponse(data);
                     })
                     .catch(error => {
-                        console.error('Error fetching data:', error);
-                        showError('Error fetching data. Please try again.');
+                        console.log('Direct fetch failed, trying proxy method...', error);
+                        // If direct fetch fails, try proxy method
+                        tryProxyFetch(phoneNumber);
                     });
             }
             
-            function displayResults(data) {
-                // Extract data from API response
-                // Adjust these property names based on your actual API response structure
-                const name = data.name || data.full_name || data.customer_name || "N/A";
-                const number = data.number || data.phone || data.phone_number || "N/A";
-                const cnic = data.cnic || data.nic || data.id_number || "N/A";
-                const address = data.address || data.location || data.area || "N/A";
+            function tryProxyFetch(phoneNumber) {
+                // Using CORS proxy to bypass CORS restrictions
+                const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}`;
+                const url = proxyUrl + encodeURIComponent(apiUrl);
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Proxy response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Proxy API Response:', data);
+                        handleApiResponse(data);
+                    })
+                    .catch(error => {
+                        console.log('Proxy fetch failed, trying JSONP method...', error);
+                        // If proxy fails, try JSONP method
+                        tryJSONPMethod(phoneNumber);
+                    });
+            }
+            
+            function tryJSONPMethod(phoneNumber) {
+                // JSONP method as last resort
+                const script = document.createElement('script');
+                const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                
+                window[callbackName] = function(data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    console.log('JSONP Response:', data);
+                    handleApiResponse(data);
+                };
+                
+                script.src = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}&callback=${callbackName}`;
+                document.body.appendChild(script);
+                
+                // Set timeout for JSONP request
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                        document.body.removeChild(script);
+                        showError('Request timeout. Please try again.');
+                    }
+                }, 10000);
+            }
+            
+            function handleApiResponse(data) {
+                // Check if API returned success and has data
+                if (data && data.success && data.data && data.data.length > 0) {
+                    displayResults(data.data[0], data.credit);
+                } else if (data && data.success && data.data && data.data.length === 0) {
+                    showNoData();
+                } else {
+                    showNoData();
+                }
+            }
+            
+            function displayResults(userData, credit) {
+                // Extract data from the nested response structure
+                const name = userData.name || "N/A";
+                const number = userData.number || "N/A";
+                const cnic = userData.cnic || "N/A";
+                const address = userData.address || "N/A";
                 
                 resultContainer.innerHTML = `
                     <div class="result-row">
@@ -313,6 +381,7 @@
                         <div class="result-label">Address:</div>
                         <div class="result-value">${address}</div>
                     </div>
+                    ${credit ? `<div class="credit">Credit: ${credit}</div>` : ''}
                 `;
             }
             
