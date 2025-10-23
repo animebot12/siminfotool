@@ -221,7 +221,7 @@
             <h2 class="tool-title">Sim Info Tool</h2>
             
             <div class="input-group">
-                <input type="text" id="phoneNumber" placeholder="Enter phone number (e.g., 03035171619)" maxlength="13">
+                <input type="text" id="phoneNumber" placeholder="Enter phone number (e.g., 03035171619)" maxlength="11">
                 <button id="searchBtn">Search</button>
             </div>
             
@@ -260,8 +260,8 @@
                     return;
                 }
                 
-                if (!/^\d{13}$/.test(phoneNumber)) {
-                    showError('Please enter a valid 13-digit phone number');
+                if (!/^\d{11}$/.test(phoneNumber)) {
+                    showError('Please enter a valid 11-digit phone number');
                     return;
                 }
                 
