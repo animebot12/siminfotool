@@ -65,6 +65,44 @@
             padding-bottom: 10px;
         }
         
+        .search-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .search-option {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .option-btn {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .option-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+        
+        .option-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .option-btn.active:hover {
+            background: #45a049;
+        }
+        
         .input-group {
             display: flex;
             margin-bottom: 25px;
@@ -189,6 +227,10 @@
         }
         
         @media (max-width: 600px) {
+            .search-options {
+                flex-direction: column;
+            }
+            
             .input-group {
                 flex-direction: column;
             }
@@ -220,13 +262,26 @@
         <div class="tool-container">
             <h2 class="tool-title">Sim Info Tool</h2>
             
+            <div class="search-options">
+                <div class="search-option">
+                    <button class="option-btn active" id="phoneOption">
+                        <i class="fas fa-phone"></i> Search by Phone Number
+                    </button>
+                </div>
+                <div class="search-option">
+                    <button class="option-btn" id="cnicOption">
+                        <i class="fas fa-id-card"></i> Search by CNIC
+                    </button>
+                </div>
+            </div>
+            
             <div class="input-group">
-                <input type="text" id="phoneNumber" placeholder="Enter phone number (e.g., 03035171619)" maxlength="11">
+                <input type="text" id="searchInput" placeholder="Enter 11-digit phone number (e.g., 03035171619)" maxlength="11">
                 <button id="searchBtn">Search</button>
             </div>
             
             <div class="result-container" id="resultContainer">
-                <div class="no-data">Enter a phone number to search for SIM information</div>
+                <div class="no-data">Select search type and enter number to search for SIM information</div>
             </div>
             
             <div class="more-tools">
@@ -242,41 +297,75 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const searchBtn = document.getElementById('searchBtn');
-            const phoneNumberInput = document.getElementById('phoneNumber');
+            const searchInput = document.getElementById('searchInput');
             const resultContainer = document.getElementById('resultContainer');
+            const phoneOption = document.getElementById('phoneOption');
+            const cnicOption = document.getElementById('cnicOption');
             
-            searchBtn.addEventListener('click', searchSimInfo);
-            phoneNumberInput.addEventListener('keypress', function(e) {
+            let searchType = 'phone'; // Default search type
+            
+            // Event listeners for search type selection
+            phoneOption.addEventListener('click', function() {
+                searchType = 'phone';
+                phoneOption.classList.add('active');
+                cnicOption.classList.remove('active');
+                searchInput.placeholder = 'Enter 11-digit phone number (e.g., 030012345678)';
+                searchInput.maxLength = 11;
+                searchInput.value = '';
+                resultContainer.innerHTML = '<div class="no-data">Enter 11-digit phone number to search</div>';
+            });
+            
+            cnicOption.addEventListener('click', function() {
+                searchType = 'cnic';
+                cnicOption.classList.add('active');
+                phoneOption.classList.remove('active');
+                searchInput.placeholder = 'Enter 12-digit CNIC number (e.g., 000000000000)';
+                searchInput.maxLength = 12;
+                searchInput.value = '';
+                resultContainer.innerHTML = '<div class="no-data">Enter 13-digit CNIC number to search</div>';
+            });
+            
+            searchBtn.addEventListener('click', searchInfo);
+            searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
-                    searchSimInfo();
+                    searchInfo();
                 }
             });
             
-            function searchSimInfo() {
-                const phoneNumber = phoneNumberInput.value.trim();
+            function searchInfo() {
+                const searchValue = searchInput.value.trim();
                 
-                if (!phoneNumber) {
-                    showError('Please enter a phone number');
+                if (!searchValue) {
+                    showError(`Please enter a ${searchType === 'phone' ? 'phone number' : 'CNIC number'}`);
                     return;
                 }
                 
-                if (!/^\d{11}$/.test(phoneNumber)) {
+                if (searchType === 'phone' && !/^\d{11}$/.test(searchValue)) {
                     showError('Please enter a valid 11-digit phone number');
+                    return;
+                }
+                
+                if (searchType === 'cnic' && !/^\d{13}$/.test(searchValue)) {
+                    showError('Please enter a valid 13-digit CNIC number');
                     return;
                 }
                 
                 // Show loading state
                 resultContainer.innerHTML = `
                     <div class="loading">
-                        <i class="fas fa-spinner"></i> Searching for SIM information...
+                        <i class="fas fa-spinner"></i> Searching for ${searchType === 'phone' ? 'phone' : 'CNIC'} information...
                     </div>
                 `;
                 
-                // Method 1: Try direct fetch first
-                tryDirectFetch(phoneNumber);
+                // Make API call based on search type
+                if (searchType === 'phone') {
+                    searchByPhone(searchValue);
+                } else {
+                    searchByCNIC(searchValue);
+                }
             }
             
-            function tryDirectFetch(phoneNumber) {
+            function searchByPhone(phoneNumber) {
                 const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}`;
                 
                 fetch(apiUrl)
@@ -291,16 +380,41 @@
                         handleApiResponse(data);
                     })
                     .catch(error => {
-                        console.log('Direct fetch failed, trying proxy method...', error);
-                        // If direct fetch fails, try proxy method
-                        tryProxyFetch(phoneNumber);
+                        console.error('Error fetching data:', error);
+                        // Try with proxy if direct fetch fails
+                        tryProxyFetch(phoneNumber, 'phone');
                     });
             }
             
-            function tryProxyFetch(phoneNumber) {
-                // Using CORS proxy to bypass CORS restrictions
+            function searchByCNIC(cnicNumber) {
+                // For CNIC search, we need to check if your API supports it
+                // Currently using the same endpoint, but you might need a different one
+                const apiUrl = `https://fam-official.serv00.net/api/database.php?cnic=${cnicNumber}`;
+                
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('API Response:', data);
+                        handleApiResponse(data);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        // Try with proxy if direct fetch fails
+                        tryProxyFetch(cnicNumber, 'cnic');
+                    });
+            }
+            
+            function tryProxyFetch(searchValue, type) {
                 const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}`;
+                const apiUrl = type === 'phone' 
+                    ? `https://fam-official.serv00.net/api/database.php?number=${searchValue}`
+                    : `https://fam-official.serv00.net/api/database.php?cnic=${searchValue}`;
+                
                 const url = proxyUrl + encodeURIComponent(apiUrl);
                 
                 fetch(url)
@@ -315,43 +429,15 @@
                         handleApiResponse(data);
                     })
                     .catch(error => {
-                        console.log('Proxy fetch failed, trying JSONP method...', error);
-                        // If proxy fails, try JSONP method
-                        tryJSONPMethod(phoneNumber);
+                        console.error('Proxy fetch failed:', error);
+                        showError('Unable to fetch data. Please try again.');
                     });
-            }
-            
-            function tryJSONPMethod(phoneNumber) {
-                // JSONP method as last resort
-                const script = document.createElement('script');
-                const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
-                
-                window[callbackName] = function(data) {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    console.log('JSONP Response:', data);
-                    handleApiResponse(data);
-                };
-                
-                script.src = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}&callback=${callbackName}`;
-                document.body.appendChild(script);
-                
-                // Set timeout for JSONP request
-                setTimeout(() => {
-                    if (window[callbackName]) {
-                        delete window[callbackName];
-                        document.body.removeChild(script);
-                        showError('Request timeout. Please try again.');
-                    }
-                }, 10000);
             }
             
             function handleApiResponse(data) {
                 // Check if API returned success and has data
                 if (data && data.success && data.data && data.data.length > 0) {
                     displayResults(data.data[0], data.credit);
-                } else if (data && data.success && data.data && data.data.length === 0) {
-                    showNoData();
                 } else {
                     showNoData();
                 }
