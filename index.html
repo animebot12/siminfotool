@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arslan Toolkit - Sim Info Tool</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .tool-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+        
+        .tool-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #fff;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 10px;
+        }
+        
+        .input-group {
+            display: flex;
+            margin-bottom: 25px;
+        }
+        
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 10px 0 0 10px;
+            font-size: 1.1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+        
+        button {
+            padding: 15px 25px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 10px 10px 0;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+        
+        .result-container {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .result-row {
+            display: flex;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .result-label {
+            font-weight: bold;
+            width: 120px;
+            color: #a8d8ff;
+        }
+        
+        .result-value {
+            flex: 1;
+        }
+        
+        .no-data {
+            text-align: center;
+            font-size: 1.3rem;
+            color: #ff6b6b;
+            padding: 30px;
+        }
+        
+        .more-tools {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .more-tools-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #FF9800;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .more-tools-btn:hover {
+            background: #e68900;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2rem;
+        }
+        
+        .loading i {
+            margin-right: 10px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .input-group {
+                flex-direction: column;
+            }
+            
+            input, button {
+                width: 100%;
+                border-radius: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .result-row {
+                flex-direction: column;
+            }
+            
+            .result-label {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Arslan Toolkit</h1>
+            <p class="tagline">Your All-in-One Information Toolkit</p>
+        </header>
+        
+        <div class="tool-container">
+            <h2 class="tool-title">Sim Info Tool</h2>
+            
+            <div class="input-group">
+                <input type="text" id="phoneNumber" placeholder="Enter phone number (e.g., 03001234567)" maxlength="11">
+                <button id="searchBtn">Search</button>
+            </div>
+            
+            <div class="result-container" id="resultContainer">
+                <div class="no-data">Enter a phone number to search for SIM information</div>
+            </div>
+            
+            <div class="more-tools">
+                <a href="https://arslantoolkit.gt.tc" class="more-tools-btn" target="_blank">Get More Tools</a>
+            </div>
+        </div>
+        
+        <footer>
+            <p>Arslan Toolkit &copy; 2023 | All Rights Reserved</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchBtn = document.getElementById('searchBtn');
+            const phoneNumberInput = document.getElementById('phoneNumber');
+            const resultContainer = document.getElementById('resultContainer');
+            
+            searchBtn.addEventListener('click', searchSimInfo);
+            phoneNumberInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    searchSimInfo();
+                }
+            });
+            
+            function searchSimInfo() {
+                const phoneNumber = phoneNumberInput.value.trim();
+                
+                if (!phoneNumber) {
+                    showError('Please enter a phone number');
+                    return;
+                }
+                
+                if (!/^\d{11}$/.test(phoneNumber)) {
+                    showError('Please enter a valid 11-digit phone number');
+                    return;
+                }
+                
+                // Show loading state
+                resultContainer.innerHTML = `
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Searching for SIM information...
+                    </div>
+                `;
+                
+                // Make API call to your endpoint
+                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}`;
+                
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Check if data is available
+                        if (data && Object.keys(data).length > 0) {
+                            displayResults(data);
+                        } else {
+                            showNoData();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching data:', error);
+                        showError('Error fetching data. Please try again.');
+                    });
+            }
+            
+            function displayResults(data) {
+                // Extract data from API response
+                // Adjust these property names based on your actual API response structure
+                const name = data.name || data.full_name || data.customer_name || "N/A";
+                const number = data.number || data.phone || data.phone_number || "N/A";
+                const cnic = data.cnic || data.nic || data.id_number || "N/A";
+                const address = data.address || data.location || data.area || "N/A";
+                
+                resultContainer.innerHTML = `
+                    <div class="result-row">
+                        <div class="result-label">Name:</div>
+                        <div class="result-value">${name}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">Number:</div>
+                        <div class="result-value">${number}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">CNIC:</div>
+                        <div class="result-value">${cnic}</div>
+                    </div>
+                    <div class="result-row">
+                        <div class="result-label">Address:</div>
+                        <div class="result-value">${address}</div>
+                    </div>
+                `;
+            }
+            
+            function showNoData() {
+                resultContainer.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-exclamation-circle"></i><br>
+                        Is number Ka Data available
+                    </div>
+                `;
+            }
+            
+            function showError(message) {
+                resultContainer.innerHTML = `
+                    <div class="no-data">
+                        <i class="fas fa-exclamation-triangle"></i><br>
+                        ${message}
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
