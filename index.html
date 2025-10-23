@@ -221,6 +221,37 @@
             opacity: 0.8;
         }
         
+        .numbers-count {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .number-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .number-header {
+            font-weight: bold;
+            color: #a8d8ff;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .created-by {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #FF9800;
+            font-weight: bold;
+        }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -276,7 +307,7 @@
             </div>
             
             <div class="input-group">
-                <input type="text" id="searchInput" placeholder="Enter 11-digit phone number (e.g., 03035171619)" maxlength="11">
+                <input type="text" id="searchInput" placeholder="Enter 11-digit phone number (e.g., 030123456789)" maxlength="11">
                 <button id="searchBtn">Search</button>
             </div>
             
@@ -287,10 +318,15 @@
             <div class="more-tools">
                 <a href="https://arslantoolkit.gt.tc" class="more-tools-btn" target="_blank">Get More Tools</a>
             </div>
+            
+            <div class="created-by">
+                Created by Mr. Arslan
+            </div>
         </div>
         
         <footer>
             <p>Arslan Toolkit &copy; 2023 | All Rights Reserved</p>
+            <p>Created by Mr. Arslan</p>
         </footer>
     </div>
 
@@ -309,7 +345,7 @@
                 searchType = 'phone';
                 phoneOption.classList.add('active');
                 cnicOption.classList.remove('active');
-                searchInput.placeholder = 'Enter 11-digit phone number (e.g., 030012345678)';
+                searchInput.placeholder = 'Enter 11-digit phone number (e.g., 03035171619)';
                 searchInput.maxLength = 11;
                 searchInput.value = '';
                 resultContainer.innerHTML = '<div class="no-data">Enter 11-digit phone number to search</div>';
@@ -319,8 +355,8 @@
                 searchType = 'cnic';
                 cnicOption.classList.add('active');
                 phoneOption.classList.remove('active');
-                searchInput.placeholder = 'Enter 12-digit CNIC number (e.g., 000000000000)';
-                searchInput.maxLength = 12;
+                searchInput.placeholder = 'Enter 13-digit CNIC number (e.g., 0000000000013)';
+                searchInput.maxLength = 13;
                 searchInput.value = '';
                 resultContainer.innerHTML = '<div class="no-data">Enter 13-digit CNIC number to search</div>';
             });
@@ -357,16 +393,13 @@
                     </div>
                 `;
                 
-                // Make API call based on search type
-                if (searchType === 'phone') {
-                    searchByPhone(searchValue);
-                } else {
-                    searchByCNIC(searchValue);
-                }
+                // Use the same API for both phone and CNIC search
+                searchByNumber(searchValue, searchType);
             }
             
-            function searchByPhone(phoneNumber) {
-                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${phoneNumber}`;
+            function searchByNumber(searchValue, type) {
+                // Same API for both phone and CNIC
+                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${searchValue}`;
                 
                 fetch(apiUrl)
                     .then(response => {
@@ -377,43 +410,18 @@
                     })
                     .then(data => {
                         console.log('API Response:', data);
-                        handleApiResponse(data);
+                        handleApiResponse(data, type, searchValue);
                     })
                     .catch(error => {
                         console.error('Error fetching data:', error);
                         // Try with proxy if direct fetch fails
-                        tryProxyFetch(phoneNumber, 'phone');
-                    });
-            }
-            
-            function searchByCNIC(cnicNumber) {
-                // For CNIC search, we need to check if your API supports it
-                // Currently using the same endpoint, but you might need a different one
-                const apiUrl = `https://fam-official.serv00.net/api/database.php?cnic=${cnicNumber}`;
-                
-                fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log('API Response:', data);
-                        handleApiResponse(data);
-                    })
-                    .catch(error => {
-                        console.error('Error fetching data:', error);
-                        // Try with proxy if direct fetch fails
-                        tryProxyFetch(cnicNumber, 'cnic');
+                        tryProxyFetch(searchValue, type);
                     });
             }
             
             function tryProxyFetch(searchValue, type) {
                 const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                const apiUrl = type === 'phone' 
-                    ? `https://fam-official.serv00.net/api/database.php?number=${searchValue}`
-                    : `https://fam-official.serv00.net/api/database.php?cnic=${searchValue}`;
+                const apiUrl = `https://fam-official.serv00.net/api/database.php?number=${searchValue}`;
                 
                 const url = proxyUrl + encodeURIComponent(apiUrl);
                 
@@ -426,7 +434,7 @@
                     })
                     .then(data => {
                         console.log('Proxy API Response:', data);
-                        handleApiResponse(data);
+                        handleApiResponse(data, type, searchValue);
                     })
                     .catch(error => {
                         console.error('Proxy fetch failed:', error);
@@ -434,16 +442,22 @@
                     });
             }
             
-            function handleApiResponse(data) {
+            function handleApiResponse(data, type, searchValue) {
                 // Check if API returned success and has data
                 if (data && data.success && data.data && data.data.length > 0) {
-                    displayResults(data.data[0], data.credit);
+                    if (type === 'cnic') {
+                        // For CNIC search, show all numbers associated with this CNIC
+                        displayMultipleResults(data.data, searchValue);
+                    } else {
+                        // For phone search, show single result
+                        displaySingleResult(data.data[0]);
+                    }
                 } else {
                     showNoData();
                 }
             }
             
-            function displayResults(userData, credit) {
+            function displaySingleResult(userData) {
                 // Extract data from the nested response structure
                 const name = userData.name || "N/A";
                 const number = userData.number || "N/A";
@@ -467,8 +481,48 @@
                         <div class="result-label">Address:</div>
                         <div class="result-value">${address}</div>
                     </div>
-                    ${credit ? `<div class="credit">Credit: ${credit}</div>` : ''}
+                    <div class="credit">Credit: Mr. Arslan</div>
                 `;
+            }
+            
+            function displayMultipleResults(userDataArray, cnicNumber) {
+                // Show all numbers associated with this CNIC
+                const numbersCount = userDataArray.length;
+                
+                let resultsHTML = `
+                    <div class="numbers-count">
+                        <i class="fas fa-mobile-alt"></i> Total ${numbersCount} Number(s) Found for CNIC: ${cnicNumber}
+                    </div>
+                `;
+                
+                userDataArray.forEach((userData, index) => {
+                    const name = userData.name || "N/A";
+                    const number = userData.number || "N/A";
+                    const cnic = userData.cnic || "N/A";
+                    const address = userData.address || "N/A";
+                    
+                    resultsHTML += `
+                        <div class="number-item">
+                            <div class="number-header">Number ${index + 1}: ${number}</div>
+                            <div class="result-row">
+                                <div class="result-label">Name:</div>
+                                <div class="result-value">${name}</div>
+                            </div>
+                            <div class="result-row">
+                                <div class="result-label">CNIC:</div>
+                                <div class="result-value">${cnic}</div>
+                            </div>
+                            <div class="result-row">
+                                <div class="result-label">Address:</div>
+                                <div class="result-value">${address}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                resultsHTML += `<div class="credit">Credit: Mr. Arslan</div>`;
+                
+                resultContainer.innerHTML = resultsHTML;
             }
             
             function showNoData() {
