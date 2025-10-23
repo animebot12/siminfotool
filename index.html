@@ -122,7 +122,7 @@
         }
         
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 10px;
             color: var(--text-primary);
             text-shadow: 0 0 10px var(--accent-glow);
@@ -130,23 +130,24 @@
         }
         
         .tagline {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.9;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             color: var(--text-secondary);
         }
         
         .theme-toggle {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
             background: var(--button-bg);
             border: 1px solid var(--border-color);
             color: var(--text-primary);
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-size: 0.8rem;
         }
         
         .theme-toggle:hover {
@@ -424,6 +425,81 @@
             font-weight: bold;
         }
         
+        .share-section {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        
+        .share-title {
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .share-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .share-btn:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+        }
+        
+        .buy-website-box {
+            text-align: center;
+            margin-top: 20px;
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        
+        .buy-title {
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        
+        .whatsapp-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #128C7E;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.4);
+        }
+        
         .validation-error {
             text-align: center;
             padding: 20px;
@@ -469,6 +545,18 @@
                 width: 100%;
                 margin-bottom: 5px;
             }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .theme-toggle {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px auto;
+                display: block;
+            }
         }
     </style>
 </head>
@@ -509,8 +597,24 @@
                 <div class="no-data">AWAITING INPUT... READY TO SCAN</div>
             </div>
             
+            <div class="share-section">
+                <div class="share-title">SHARE WITH FRIENDS</div>
+                <a href="https://api.whatsapp.com/send?text=Get Unlimited Free Tools . ek bar open kar ke try to karo https://arslantoolkit.gt.tc/" class="share-btn" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    SHARE ON WHATSAPP
+                </a>
+            </div>
+            
             <div class="more-tools">
                 <a href="https://arslantoolkit.gt.tc" class="more-tools-btn" target="_blank">ACCESS MORE TOOLS</a>
+            </div>
+            
+            <div class="buy-website-box">
+                <div class="buy-title">BUY THE WEBSITE</div>
+                <a href="https://wa.me/923296521799" class="whatsapp-btn" target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                    CONTACT ON WHATSAPP
+                </a>
             </div>
             
             <div class="created-by">
