@@ -522,6 +522,49 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* Ads Container Styling */
+        .ad-container {
+            margin: 20px 0;
+            text-align: center;
+            padding: 10px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .direct-link-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 2px solid var(--accent);
+        }
+        
+        .direct-link-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        
+        .direct-link-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .ad-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
         @media (max-width: 600px) {
             .search-options {
                 flex-direction: column;
@@ -591,6 +634,17 @@
             <div class="input-group">
                 <input type="text" id="searchInput" placeholder="ENTER 11-DIGIT PHONE NUMBER" maxlength="11">
                 <button id="searchBtn">INITIATE SCAN</button>
+            </div>
+            
+            <!-- DIRECT LINK ADS - Content ke beech mein -->
+            <div class="direct-link-container">
+                <div class="ad-label">Sponsored Links</div>
+                <a href="https://otieu.com/4/10086856" class="direct-link-btn" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> Premium Tools Access
+                </a>
+                <a href="https://otieu.com/4/10086856" class="direct-link-btn" target="_blank">
+                    <i class="fas fa-download"></i> Download Resources
+                </a>
             </div>
             
             <div class="result-container" id="resultContainer">
@@ -900,5 +954,23 @@
             }
         });
     </script>
+    
+    <!-- IN-PAGE PUSH BANNER AD - Body ke end se pehle -->
+    <script>
+        (function(s){
+            s.dataset.zone='10086849',
+            s.src='https://forfrogadiertor.com/tag.min.js'
+        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
+    </script>
+    
+    <!-- POPUNDER AD (Optional) - Agar use karna ho to -->
+    <!--
+    <script>
+        (function(s){
+            s.dataset.zone='10084915',
+            s.src='https://al5sm.com/tag.min.js'
+        })([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
+    </script>
+    -->
 </body>
 </html>
