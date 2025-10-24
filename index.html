@@ -557,7 +557,6 @@
                 margin: 10px auto;
                 display: block;
             }
-            <meta name="monetag" content="cb03f4ad159b19bbe5b2ccfdce6b8b89">
         }
     </style>
 </head>
@@ -689,7 +688,11 @@
                 resultContainer.innerHTML = '<div class="no-data">ENTER 13-DIGIT CNIC TO SCAN</div>';
             });
             
-            searchBtn.addEventListener('click', searchInfo);
+            // Fixed search button event listener
+            searchBtn.addEventListener('click', function() {
+                searchInfo();
+            });
+            
             searchInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     searchInfo();
@@ -896,7 +899,6 @@
                 `;
             }
         });
-    <script>(function(s){s.dataset.zone='10084915',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     </script>
 </body>
 </html>
